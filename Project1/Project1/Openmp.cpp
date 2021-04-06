@@ -11,6 +11,7 @@
 #include<ipp.h>
 #include <iostream>
 #include <stdio.h>
+#include <math.h>
 
 using namespace cv;
 using namespace std;
@@ -431,19 +432,36 @@ void Openmp::CompareBilinearInterpolation()
 
 void Openmp::CompareBicubicInterpolation()
 {
-	int nx = 2;
+	int nx = 3;
 	int bicubic_num = 4;
 
-	float* w = new float[bicubic_num *nx];
+	float* w = new float[bicubic_num * (nx - 1)];
 	wInter_bicubic(nx, w, bicubic_num);
 }
 
 
 void Openmp::wInter_bicubic(int nx, float* w, int bicubic_num=4)
 {
-	for (int i = 0; i < nx * bicubic_num; i += bicubic_num)
+	double a = -0.5;
+	
+	for (int i = 0; i < (nx - 1) * bicubic_num; i += bicubic_num)
 	{
+		int new_idx = i / bicubic_num;
 		
+		for (int j = 0; j < bicubic_num; j++)
+		{
+			double x = abs(((1 + (double)(new_idx + 1) / (double)nx) - j));
+			
+			if (x >= 0 && x < 1)
+				w[i + j] = (a + 2) * x * x * x - (a + 3) * x * x + 1;
+			else if (x >= 1 && x < 2)
+				w[i + j] = a * x * x * x - 5 * a * x * x + 8 * a * x - 4 * a;
+			else
+				w[i + j] = 0;
+
+			//cout << w[i + j] << "   ";
+		}
+		//cout << "\n";
 	}
 }
 
