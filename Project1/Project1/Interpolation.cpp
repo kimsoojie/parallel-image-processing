@@ -203,15 +203,16 @@ void Interpolation::wInter_bspline(int nx, float* w, int num = 4)
 	}
 }
 
-void Interpolation::CompareBilinear()
+void Interpolation::CompareBilinear(const char* image, int img_size, int nx = 3, int ny = 3, int number_of_pixels = 2)
 {
 	TickMeter tm;
 
-	int n = 3;
-	int bilinear = 2;
+	int n = nx;
+	int bilinear = number_of_pixels;
 
 	// load src image
-	Mat src = imread("hw1_2.jpg", 0);
+	Mat src = imread(image, 0);
+	resize(src, src, Size(img_size, img_size));
 	Mat dst_Serial(src.size().width * n, src.size().height * n, CV_8UC1);
 	Mat dst_Openmp(src.size().width * n, src.size().height * n, CV_8UC1);
 
@@ -251,15 +252,16 @@ void Interpolation::CompareBilinear()
 	waitKey(0);
 }
 
-void Interpolation::CompareBicubic()
+void Interpolation::CompareBicubic(const char* image, int img_size, int nx = 3, int ny = 3, int number_of_pixels = 4)
 {
 	TickMeter tm;
 
-	int n = 3;
-	int bicubic = 4;
+	int n = nx;
+	int bicubic = number_of_pixels;
 
 	// load src image
-	Mat src = imread("hw1_2.jpg", 0);
+	Mat src = imread(image, 0);
+	resize(src, src, Size(img_size, img_size));
 	Mat dst_Serial(src.size().width * n, src.size().height * n, CV_8UC1);
 	Mat dst_Openmp(src.size().width * n, src.size().height * n, CV_8UC1);
 
@@ -299,15 +301,16 @@ void Interpolation::CompareBicubic()
 	waitKey(0);
 }
 
-void Interpolation::CompareLagrange()
+void Interpolation::CompareLagrange(const char* image, int img_size, int nx = 3, int ny = 3, int number_of_pixels = 4)
 {
 	TickMeter tm;
 
-	int n = 3;
-	int lagrange = 4;
+	int n = nx;
+	int lagrange = number_of_pixels;
 
 	// load src image
-	Mat src = imread("hw1_2.jpg", 0);
+	Mat src = imread(image, 0);
+	resize(src, src, Size(img_size, img_size));
 	Mat dst_Serial(src.size().width * n, src.size().height * n, CV_8UC1);
 	Mat dst_Openmp(src.size().width * n, src.size().height * n, CV_8UC1);
 
@@ -347,15 +350,16 @@ void Interpolation::CompareLagrange()
 	waitKey(0);
 }
 
-void Interpolation::CompareBspline()
+void Interpolation::CompareBspline(const char* image, int img_size, int nx = 3, int ny = 3, int number_of_pixels = 4)
 {
 	TickMeter tm;
 
-	int n = 3;
-	int bspline = 4;
+	int n = nx;
+	int bspline = number_of_pixels;
 
 	// load src image
-	Mat src = imread("hw1_2.jpg", 0);
+	Mat src = imread(image, 0);
+	resize(src, src, Size(img_size, img_size));
 	Mat dst_Serial(src.size().width * n, src.size().height * n, CV_8UC1);
 	Mat dst_Openmp(src.size().width * n, src.size().height * n, CV_8UC1);
 

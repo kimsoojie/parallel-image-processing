@@ -23,7 +23,7 @@ int main(int ac, char** av) {
 	//inter.CompareBilinear();
 	//inter.CompareBicubic();
 	//inter.CompareLagrange();
-	inter.CompareBspline();
+	inter.CompareBspline("dog.jpg", 150, 3, 3, 4);
 
     //Openmp mp;
 	//mp.CompareFilter2DCV_2DMP();

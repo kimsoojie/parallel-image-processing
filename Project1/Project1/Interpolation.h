@@ -6,10 +6,10 @@ using namespace cv;
 class Interpolation
 {
 public:
-	void CompareBilinear();
-	void CompareBicubic();
-	void CompareLagrange();
-	void CompareBspline();
+	void CompareBilinear(const char* image,int img_size, int nx, int ny, int number_of_pixels);
+	void CompareBicubic(const char* image, int img_size, int nx, int ny, int number_of_pixels);
+	void CompareLagrange(const char* image, int img_size, int nx, int ny, int number_of_pixels);
+	void CompareBspline(const char* image, int img_size, int nx, int ny, int number_of_pixels);
 
 private:
 	// Weight
