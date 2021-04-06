@@ -381,6 +381,7 @@ void Openmp::CompareBilinearInterpolation()
 	Mat dst_Serial(src.size().width * nx, src.size().height * ny, CV_8UC1);
 	Mat dst_Openmp(src.size().width * nx, src.size().height * ny, CV_8UC1);
 
+
 	float* w = new float[nx * 8];
 	memset(w, 0, nx * 8 * sizeof(float));
 
@@ -418,10 +419,25 @@ void Openmp::CompareBilinearInterpolation()
 void Openmp::CompareBicubicInterpolation()
 {
 	int nx = 3;
-	int bicubic_num = 4;
+	int bicubic = 4;
 
-	float* w = new float[bicubic_num * (nx - 1)];
-	wInter_bicubic(nx, w, bicubic_num);
+	// load src image
+	Mat src = imread("hw1_2.jpg", 0);
+	Mat dst_Serial(src.size().width * nx, src.size().height * nx, CV_8UC1);
+	Mat dst_Openmp(src.size().width * nx, src.size().height * nx, CV_8UC1);
+
+	// bicubic weight
+	float* w = new float[bicubic * (nx - 1)];
+	//wInter(nx, nx, w);
+	wInter_bicubic(nx, w, bicubic);
+	
+	//Interp((unsigned char*)src.data, src.size().height, src.size().width, w, nx, nx, (unsigned char*)dst_Serial.data);
+	Interp_bicubic(src, src.size().height, src.size().width, w, nx, dst_Serial, bicubic);
+
+	imshow("src", src);
+	imshow("dst_Serial", dst_Serial);
+	//imshow("dst_Openmp", dst_Openmp);
+	waitKey(0);
 }
 
 
@@ -450,7 +466,49 @@ void Openmp::wInter_bicubic(int nx, float* w, int bicubic_num=4)
 	}
 }
 
-void Openmp::Interp_bicubic(unsigned char* src, int hg, int wd, float* w, int x, int y, unsigned char* output)
+void Openmp::Interp_bicubic(Mat src, int hg, int wd, float* w, int x, Mat output, int bicubic_num = 4)
 {
+	int start = bicubic_num / 2;
+	
+	for (int i = start; i < hg - start; i++)
+	{
+		for (int j = start; j < wd - start; j++)
+		{
+			int ii = i * x;
+			int jj = j * x;
+			
+			output.at<char>(ii, jj) = src.at<char>(i, j); // original pixel
 
+			for (int k = 1; k < x; k++)
+			{
+				float new_pixel = 0.0;
+				for (int b = 0; b < bicubic_num; b++)
+				{
+					int s = i - start + b + 1;
+					new_pixel += w[b] * src.at<char>(s, j);
+				}
+				output.at<char>(ii + k, jj) = new_pixel; // new pixel (vertical)
+			}
+		}
+	}
+
+	for (int i = start; i < hg - start; i++)
+	{
+		for (int j = start; j < wd - start; j++)
+		{
+			int ii = i * x;
+			int jj = j * x;
+
+			for (int k = 1; k < x; k++)
+			{
+				float new_pixel = 0.0;
+				for (int b = 0; b < bicubic_num; b++)
+				{
+					int s = j - start + b + 1;
+					new_pixel += w[b] * src.at<char>(i, s);
+				}
+				output.at<char>(ii, jj + k) = new_pixel; // new pixel (horizontal)
+			}
+		}
+	}
 }

@@ -22,7 +22,8 @@ int main(int ac, char** av) {
     //mp.CompareBilinearInterpolation();
 	
 	mp.CompareBicubicInterpolation();
-    //mp.CompareFilter2DCV_2DMP();
+    
+	//mp.CompareFilter2DCV_2DMP();
     //mp.Sum();
     //mp.Multiply();
     //mp.fnc();

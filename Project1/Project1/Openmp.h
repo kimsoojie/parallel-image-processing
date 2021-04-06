@@ -45,7 +45,7 @@ private:
 
 	//bicubic
 	void wInter_bicubic(int x, float* w, int bicubic_num);
-	void Interp_bicubic(unsigned char* src, int h, int width, float* w, int x, int y, unsigned char* output);
-	void Interp_bicubic_omp(unsigned char* src, int h, int width, float* w, int x, int y, unsigned char* output);
+	void Interp_bicubic(Mat src, int h, int width, float* w, int x, Mat output, int bicubic_num);
+	void Interp_bicubic_omp(Mat src, int h, int width, float* w, int x, Mat output, int bicubic_num);
 };
 
