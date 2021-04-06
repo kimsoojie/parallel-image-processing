@@ -21,7 +21,9 @@ int main(int ac, char** av) {
 
 	Interpolation inter;
 	//inter.CompareBilinear();
-	inter.CompareBicubic();
+	//inter.CompareBicubic();
+	//inter.CompareLagrange();
+	inter.CompareBspline();
 
     //Openmp mp;
 	//mp.CompareFilter2DCV_2DMP();
