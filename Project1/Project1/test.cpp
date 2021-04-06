@@ -20,10 +20,10 @@ using namespace std;
 int main(int ac, char** av) {
 
 	Interpolation inter;
-	//inter.CompareBilinear();
-	//inter.CompareBicubic();
-	//inter.CompareLagrange();
-	inter.CompareBspline("dog.jpg", 150, 3, 3, 4);
+	inter.CompareBilinear("dog.jpg", 512, 3, 3, 2);
+	//inter.CompareBicubic("dog.jpg", 512, 3, 3, 4);
+	//inter.CompareLagrange("dog.jpg", 512, 3, 3, 4);
+	//inter.CompareBspline("dog.jpg", 512, 3, 3, 4);
 
     //Openmp mp;
 	//mp.CompareFilter2DCV_2DMP();

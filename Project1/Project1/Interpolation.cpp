@@ -249,6 +249,8 @@ void Interpolation::CompareBilinear(const char* image, int img_size, int nx = 3,
 	imshow("src", src);
 	imshow("dst_Serial", dst_Serial);
 	imshow("dst_Openmp", dst_Openmp);
+	imwrite("./result/bilinear_serial.jpg", dst_Serial);
+	imwrite("./result/bilinear_openmp.jpg", dst_Openmp);
 	waitKey(0);
 }
 
@@ -298,6 +300,8 @@ void Interpolation::CompareBicubic(const char* image, int img_size, int nx = 3, 
 	imshow("src", src);
 	imshow("dst_Serial", dst_Serial);
 	imshow("dst_Openmp", dst_Openmp);
+	imwrite("./result/bicubic_serial.jpg", dst_Serial);
+	imwrite("./result/bicubic_openmp.jpg", dst_Openmp);
 	waitKey(0);
 }
 
@@ -347,6 +351,8 @@ void Interpolation::CompareLagrange(const char* image, int img_size, int nx = 3,
 	imshow("src", src);
 	imshow("dst_Serial", dst_Serial);
 	imshow("dst_Openmp", dst_Openmp);
+	imwrite("./result/lagrange_serial.jpg", dst_Serial);
+	imwrite("./result/lagrange_openmp.jpg", dst_Openmp);
 	waitKey(0);
 }
 
@@ -396,5 +402,7 @@ void Interpolation::CompareBspline(const char* image, int img_size, int nx = 3, 
 	imshow("src", src);
 	imshow("dst_Serial", dst_Serial);
 	imshow("dst_Openmp", dst_Openmp);
+	imwrite("./result/bspline_serial.jpg", dst_Serial);
+	imwrite("./result/bspline_openmp.jpg", dst_Openmp);
 	waitKey(0);
 }
