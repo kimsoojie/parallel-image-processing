@@ -381,21 +381,6 @@ void Openmp::CompareBilinearInterpolation()
 	Mat dst_Serial(src.size().width * nx, src.size().height * ny, CV_8UC1);
 	Mat dst_Openmp(src.size().width * nx, src.size().height * ny, CV_8UC1);
 
-	int wd = src.size().width;
-	int hg = src.size().height;
-
-	int row, col;
-
-	float* input = new float[wd * hg];
-	memset(input, 0, wd * hg * sizeof(float));
-
-	float* output = new float[(wd * nx) * (hg * ny)];
-	memset(output, 0, (wd * nx) * (hg * ny) * sizeof(float));
-
-	for (row = 0; row < hg; row++)
-		for (col = 0; col < wd; col++)
-			input[row * wd + col] = (float)src.at<char>(row, col);
-
 	float* w = new float[nx * 8];
 	memset(w, 0, nx * 8 * sizeof(float));
 
