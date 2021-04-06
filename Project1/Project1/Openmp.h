@@ -27,25 +27,11 @@ public:
 	// filter: Compare Filter2DV, Filter2DMP
 	void CompareFilter2DCV_2DMP(); 
 
-	// bilinear interpolation : compare
-	void CompareBilinearInterpolation();
-
-	// bicubic
-	void CompareBicubicInterpolation();
 
 private:
 	// filter
 	void Filter2DCV(Mat src, int w, int h, Mat dst, Mat element, int we, int he);
 	void Filter2DMP(Mat src, int w, int h, Mat dst, Mat element, int we, int he);
 
-	// bilinear interpolation
-	void wInter(int x, int y, float* w);
-	void Interp(unsigned char* src, int h, int width, float* w, int x, int y, unsigned char* output);
-	void Interp_omp(unsigned char* src, int h, int width, float* w, int x, int y, unsigned char* output);
-
-	//bicubic
-	void wInter_bicubic(int x, float* w, int bicubic_num);
-	void Interp_bicubic(Mat src, int h, int width, float* w, int x, Mat output, int bicubic_num);
-	void Interp_bicubic_omp(Mat src, int h, int width, float* w, int x, Mat output, int bicubic_num);
 };
 

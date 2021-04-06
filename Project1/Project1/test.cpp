@@ -1,5 +1,6 @@
 #include "test.h"
 #include "Ipp.h"
+#include "Interpolation.h"
 #include "Opencv.h"
 #include "Openmp.h"
 #include "opencv2/highgui.hpp"
@@ -18,11 +19,11 @@ using namespace std;
 
 int main(int ac, char** av) {
 
-    Openmp mp;
-    //mp.CompareBilinearInterpolation();
-	
-	mp.CompareBicubicInterpolation();
-    
+	Interpolation inter;
+	//inter.CompareBilinear();
+	inter.CompareBicubic();
+
+    //Openmp mp;
 	//mp.CompareFilter2DCV_2DMP();
     //mp.Sum();
     //mp.Multiply();
