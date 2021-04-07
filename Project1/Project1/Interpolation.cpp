@@ -144,13 +144,39 @@ void Interpolation::wInter_bicubic(int nx, float* w, int bicubic_num = 4)
 		{
 			double x = abs((j - (1 + (double)(new_idx + 1) / (double)nx)));
 
-			if (x >= 0 && x < 1)
-				w[i + j] = (a + 2) * pow(x, 3) - (a + 3) * pow(x, 2) + 1;
-			else if (x >= 1 && x < 2)
-				w[i + j] = a * pow(x, 3) - 5 * a * pow(x, 2) + 8 * a * x - 4 * a;
-			else
-				w[i + j] = 0;
-
+			switch (bicubic_num)
+			{
+			case 4:
+				if (x >= 0 && x < 1)
+					w[i + j] = (a + 2) * pow(x, 3) - (a + 3) * pow(x, 2) + 1;
+				else if (x >= 1 && x < 2)
+					w[i + j] = a * pow(x, 3) - 5 * a * pow(x, 2) + 8 * a * x - 4 * a;
+				else
+					w[i + j] = 0;
+				break;
+			case 6:
+				if (x >= 0 && x < 1)
+					w[i + j] = (6.0 / 5.0) * pow(x, 3) - (11.0 / 5.0) * pow(x, 2) + 1;
+				else if (x >= 1 && x < 2)
+					w[i + j] = -(3.0 / 5.0) * pow(x, 3) + (16.0 / 5.0) * pow(x, 2) - (27.0 / 5.0) * x + (14.0 / 5.0);
+				else if (x >= 2 && x < 3)
+					w[i + j] = (1.0 / 5.0) * pow(x, 3) - (8.0 / 5.0) * pow(x, 2) + (21.0 / 5.0) * x - (18.0 / 5.0);
+				else
+					w[i + j] = 0;
+				break;
+			case 8:
+				if (x >= 0 && x < 1)
+					w[i + j] = (67.0 / 56.0) * pow(x, 3) - (123.0 / 56.0) * pow(x, 2) + 1;
+				else if (x >= 1 && x < 2)
+					w[i + j] = -(33.0 / 56.0) * pow(x, 3) + (177.0 / 56.0) * pow(x, 2) - (75.0 / 14.0) * x + (39.0 / 14.0);
+				else if (x >= 2 && x < 3)
+					w[i + j] = (9.0 / 56.0) * pow(x, 3) - (75.0 / 56.0) * pow(x, 2) + (51.0 / 14.0) * x - (45.0 / 14.0);
+				else if (x >= 3 && x < 4)
+					w[i + j] = -(3.0 / 56.0) * pow(x, 3) + (33.0 / 56.0) * pow(x, 2) - (15.0 / 7.0) * x + (18.0 / 7.0);
+				else
+					w[i + j] = 0;
+				break;
+			}
 			cout << w[i + j] << "   ";
 		}
 		cout << "\n";
