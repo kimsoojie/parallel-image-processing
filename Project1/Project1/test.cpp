@@ -16,96 +16,67 @@
 using namespace cv;
 using namespace std;
 
+int DisplayVideo(string str, string windowName);
 
 int main(int ac, char** av) {
-
-	Interpolation inter;
-	inter.CompareBilinear("dog.jpg", 512, 3, 3, 2);
-	//inter.CompareBicubic("dog.jpg", 512, 3, 3, 4);
-	//inter.CompareLagrange("dog.jpg", 512, 3, 3, 4);
-	//inter.CompareBspline("dog.jpg", 512, 3, 3, 4);
-
-    //Openmp mp;
-	//mp.CompareFilter2DCV_2DMP();
-    //mp.Sum();
-    //mp.Multiply();
-    //mp.fnc();
-
-    //Ipp _Ipp;
-    ////_Ipp.GaussianFilter();
-    //_Ipp.MedianFilter();
-    //
-    //Opencv _Opencv;
-    ////_Opencv.GaussianFilter();
-    //_Opencv.MedianFilter();
-
+   
+#pragma omp parallel sections
+    {
+#pragma omp section
+        DisplayVideo("testvideo.mp4", "original");
+#pragma omp section
+        DisplayVideo("testvideo.mp4", "gaussian");
+#pragma omp section
+        DisplayVideo("testvideo.mp4", "sobel");
+#pragma omp section
+        DisplayVideo("testvideo.mp4", "gabor");
+    }
+ 
     return 0;
 }
 
-void wInter(int x, int y,  float* w)
+int DisplayVideo(string strVideo, string windowName)
 {
-    x = x - 1;
-    y = y - 1;
-    int i;
+    VideoCapture cap(strVideo);
+    if (!cap.isOpened()) return -1;
+    
+    Mat edges;
 
-    for (i = 0; i < x; i++)
+    namedWindow(windowName, 1);
+
+    double fstart, fend, fprocTime;
+    double fps;
+
+    for(;;)
     {
-        w[i * 2 + 0] = 1 - (float)(i + 1) / (float)(x + 1); // 0, 2 -> 1-1/3, 1-2/3 
-        w[i * 2 + 1] = (float)(i + 1) / (float)(x + 1);	// 1, 3 -> 1/3, 2/3
+        fstart = omp_get_wtime();
+
+        Mat frame;
+        cap >> frame;
+        if (frame.empty())
+        {
+            destroyWindow(windowName);
+            break;
+        }
+
+        if (windowName == "original")
+            ;
+        else if (windowName == "gaussian")
+            GaussianBlur(frame, frame, Size(5, 5), 10, 10);
+        else if (windowName == "sobel")
+            Sobel(frame, frame, -1, 0, 1);
+        else if (windowName == "gabor")
+        {
+            Mat kernel = getGaborKernel(Size(21, 21), 5, 1, 10, 1, 0, CV_32F);
+            filter2D(frame, frame, -1, kernel);
+        }
+
+        fend = omp_get_wtime();
+        fprocTime = fend - fstart;
+        fps = 1 / fprocTime;
+        putText(frame, "fps: " + to_string(fps), Point(50, 50), FONT_HERSHEY_SIMPLEX,0.8, Scalar(0, 255, 0), 3);
+        imshow(windowName, frame);
+        waitKey(10);
     }
-
-}
-
-void Interp(unsigned char* src, int hg, int wd, float* w, int x, int y, unsigned char* output) {
-
-	x = x - 1;
-	y = y - 1;
-	int r, c, i, j, nc, nr, size;
-	size = 1;
-
-	int nwd = wd * (x + 1);
-
-	float temp;
-
-	for (r = 0; r < hg; r++) {
-		for (c = 0 + size - 1; c < wd - size; c++)
-		{
-			nr = r * (y + 1);
-			nc = c * (x + 1);
-
-			output[nr * nwd + nc] = src[r * wd + c];
-
-			for (i = 0; i < x; i++)
-			{
-				nc = c * (x + 1) + i + 1;
-				temp = 0;
-				for (j = 0; j < size * 2; j++)
-					temp += w[i * (size * 2) + j] * (float)src[r * wd + c - size + j + 1];
-
-				output[nr * nwd + nc] = (unsigned char)((int)(temp + 0.5));
-			}
-		}
-	}
-
-
-	int ntemp;
-
-	for (r = 0 + size - 1; r < hg - size; r++) {
-		for (c = 0 * (x + 1); c < wd * (x + 1) + x; c++)
-		{
-			for (i = 0; i < y; i++)
-			{
-				nr = r * (y + 1) + i + 1;
-				temp = 0;
-				for (j = 0; j < size * 2; j++)
-				{
-					ntemp = (r - size + j + 1) * (y + 1);
-					temp += w[i * (size * 2) + j] * (float)output[ntemp * nwd + c];
-				}
-
-				output[nr * nwd + c] = (unsigned char)((int)(temp + 0.5));
-			}
-		}
-	}
-
+    return 0;
 }
