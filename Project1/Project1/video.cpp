@@ -77,17 +77,9 @@ int video::DisplayVideo(string strVideo, string windowName)
 
 void video::FaceDetectTest()
 {
-    //FaceDetect("people.mp4", "original");
-    //BodyDetect("people.mp4", "original");
+    //FaceDetect("person.mp4", "original");
+    BodyDetect("person.mp4", "original");
 
-#pragma omp parallel sections
-    {
-#pragma omp section
-        FaceDetect("people.mp4", "original");
-#pragma omp section
-        BodyDetect("people.mp4", "original");
-
-    }
 }
 
 void video::FaceDetect(string strVideo, string windowName)
@@ -101,7 +93,8 @@ void video::FaceDetect(string strVideo, string windowName)
     double fps;
 
     CascadeClassifier face_cascade;
-    string cascadepath_face = "D:\\program\\opencv\\opencv\\sources\\data\\haarcascades\\haarcascade_frontalface_default.xml";
+    //string cascadepath_face = "D:\\program\\opencv\\opencv\\sources\\data\\haarcascades\\haarcascade_frontalface_default.xml";
+    string cascadepath_face = "D:\\soojie\\program\\opencv\\sources\\data\\haarcascades\\haarcascade_frontalface_default.xml";
 
     if (!face_cascade.load(cascadepath_face))
     {
@@ -138,7 +131,7 @@ void video::FaceDetect(string strVideo, string windowName)
         fend = omp_get_wtime();
         fprocTime = fend - fstart;
         fps = 1 / fprocTime;
-        putText(frame, "fps: " + to_string(fps), Point(50, 50), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(0, 0, 255), 3);
+        putText(frame, "fps: " + to_string(fps), Point(50, 50), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(0, 255, 0), 3);
         imshow(windowName, frame);
         waitKey(10);
     }
@@ -154,10 +147,11 @@ void video::BodyDetect(string strVideo, string windowName)
     double fstart, fend, fprocTime;
     double fps;
 
-    CascadeClassifier body_cascade;
-    string cascadepath_body = "D:\\program\\opencv\\opencv\\sources\\data\\haarcascades\\haarcascade_fullbody.xml";
+    CascadeClassifier eye_cascade;
+    //string cascadepath_body = "D:\\program\\opencv\\opencv\\sources\\data\\haarcascades\\haarcascade_fullbody.xml";
+    string cascadepath_eye = "D:\\soojie\\program\\opencv\\sources\\data\\haarcascades\\haarcascade_righteye_2splits.xml";
 
-    if (!body_cascade.load(cascadepath_body))
+    if (!eye_cascade.load(cascadepath_eye))
     {
         cout << "cascade load error\n";
         return;
@@ -175,24 +169,24 @@ void video::BodyDetect(string strVideo, string windowName)
             break;
         }
 
-        vector<Rect> faces;
+        vector<Rect> eyes;
         Mat frame_gray;
 
         cvtColor(frame, frame_gray, COLOR_BGR2GRAY);
         equalizeHist(frame_gray, frame_gray);
 
-        body_cascade.detectMultiScale(frame_gray, faces, 1.1, 2, 0 | CASCADE_SCALE_IMAGE, Size(30, 30));
+        eye_cascade.detectMultiScale(frame_gray, eyes, 1.1, 2, 0 | CASCADE_SCALE_IMAGE, Size(30, 30));
 
-        for (size_t i = 0; i < faces.size(); i++)
+        for (size_t i = 0; i < eyes.size(); i++)
         {
-            Point center(faces[i].x + faces[i].width / 2, faces[i].y + faces[i].height / 2);
-            rectangle(frame, Rect(center.x - (faces[i].width / 2), center.y - (faces[i].height / 2), faces[i].width, faces[i].height), Scalar(0, 0, 255), 4, 8, 0);
+            Point center(eyes[i].x + eyes[i].width / 2, eyes[i].y + eyes[i].height / 2);
+            rectangle(frame, Rect(center.x - (eyes[i].width / 2), center.y - (eyes[i].height / 2), eyes[i].width, eyes[i].height), Scalar(0, 0, 255), 4, 8, 0);
         }
 
         fend = omp_get_wtime();
         fprocTime = fend - fstart;
         fps = 1 / fprocTime;
-        putText(frame, "fps: " + to_string(fps), Point(50, 50), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(0, 0, 255), 3);
+        putText(frame, "fps: " + to_string(fps), Point(50, 50), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(0, 255, 0), 3);
         imshow(windowName, frame);
         waitKey(10);
     }
