@@ -97,29 +97,35 @@ void video::Detection(string strVideo)
     {
 #pragma omp section
         {
+//#pragma omp parallel for
             for (int i = 0; i < frames.size(); i++)
             {
                 Mat frame = frames[i];
                 if (frame.empty()) break;
-                if (i % 3 == 0) Display_Original(frame, "0");
+                if (i % 3 == 0) 
+                    Display_Original(frame, "0");
             }
         }
 #pragma omp section
         {
+//#pragma omp parallel for
             for (int i = 0; i < frames.size(); i++)
             {
                 Mat frame = frames[i];
                 if (frame.empty()) break;
-                if (i % 3 == 1) Display_Face(frame, "1");
+                if (i % 3 == 1) 
+                    Display_Face(frame, "1");
             }
         }
 #pragma omp section
         {
+//#pragma omp parallel for
             for (int i = 0; i < frames.size(); i++)
             {
                 Mat frame = frames[i];
                 if (frame.empty()) break;
-                if (i % 3 == 2) Display_Eye(frame, "2");
+                if (i % 3 == 2) 
+                    Display_Eye(frame, "2");
             }
         }
     }
