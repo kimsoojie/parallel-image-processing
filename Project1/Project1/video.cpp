@@ -31,18 +31,17 @@ void video::MultipleVideoProcessingTest()
 
 int video::DisplayVideo(string strVideo, string windowName)
 {
-    VideoCapture cap(strVideo);
+    VideoCapture cap(0);
     if (!cap.isOpened()) return -1;
-
-    Mat edges;
 
     namedWindow(windowName, 1);
 
     double fstart, fend, fprocTime;
     double fps;
-
+    int f = 0;
     for (;;)
     {
+        f++;
         fstart = omp_get_wtime();
 
         Mat frame;
@@ -72,5 +71,122 @@ int video::DisplayVideo(string strVideo, string windowName)
         imshow(windowName, frame);
         waitKey(10);
     }
+    cout << f << endl;
     return 0;
+}
+
+void video::FaceDetectTest()
+{
+    //FaceDetect("people.mp4", "original");
+    //BodyDetect("people.mp4", "original");
+
+}
+
+void video::FaceDetect(string strVideo, string windowName)
+{
+    VideoCapture cap(strVideo);
+    if (!cap.isOpened());
+
+    namedWindow(windowName, 1);
+
+    double fstart, fend, fprocTime;
+    double fps;
+
+    CascadeClassifier face_cascade;
+    string cascadepath_face = "D:\\program\\opencv\\opencv\\sources\\data\\haarcascades\\haarcascade_frontalface_default.xml";
+    string cascadepath_body = "D:\\program\\opencv\\opencv\\sources\\data\\haarcascades\\haarcascade_fullbody.xml";
+
+    if (!face_cascade.load(cascadepath_face))
+    {
+        cout << "cascade load error\n";
+        return;
+    }
+
+    for (;;)
+    {
+        fstart = omp_get_wtime();
+
+        Mat frame;
+        cap >> frame;
+        if (frame.empty())
+        {
+            destroyWindow(windowName);
+            break;
+        }
+
+        vector<Rect> faces;
+        Mat frame_gray;
+
+        cvtColor(frame, frame_gray, COLOR_BGR2GRAY);
+        equalizeHist(frame_gray, frame_gray);
+
+        face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2, 0 | CASCADE_SCALE_IMAGE, Size(30, 30));
+
+        for (size_t i = 0; i < faces.size(); i++)
+        {
+            Point center(faces[i].x + faces[i].width / 2, faces[i].y + faces[i].height / 2);
+            rectangle(frame, Rect(center.x-(faces[i].width / 2), center.y-(faces[i].height / 2), faces[i].width, faces[i].height), Scalar(0, 0, 255), 4, 8, 0);
+        }
+
+        fend = omp_get_wtime();
+        fprocTime = fend - fstart;
+        fps = 1 / fprocTime;
+        putText(frame, "fps: " + to_string(fps), Point(50, 50), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(0, 0, 255), 3);
+        imshow(windowName, frame);
+        waitKey(10);
+    }
+}
+
+void video::BodyDetect(string strVideo, string windowName)
+{
+    VideoCapture cap(strVideo);
+    if (!cap.isOpened());
+
+    namedWindow(windowName, 1);
+
+    double fstart, fend, fprocTime;
+    double fps;
+
+    CascadeClassifier body_cascade;
+    string cascadepath_body = "D:\\program\\opencv\\opencv\\sources\\data\\haarcascades\\haarcascade_fullbody.xml";
+
+    if (!body_cascade.load(cascadepath_body))
+    {
+        cout << "cascade load error\n";
+        return;
+    }
+
+    for (;;)
+    {
+        fstart = omp_get_wtime();
+
+        Mat frame;
+        cap >> frame;
+        if (frame.empty())
+        {
+            destroyWindow(windowName);
+            break;
+        }
+
+        vector<Rect> faces;
+        Mat frame_gray;
+
+        cvtColor(frame, frame_gray, COLOR_BGR2GRAY);
+        equalizeHist(frame_gray, frame_gray);
+
+        body_cascade.detectMultiScale(frame_gray, faces, 1.1, 2, 0 | CASCADE_SCALE_IMAGE, Size(30, 30));
+
+        for (size_t i = 0; i < faces.size(); i++)
+        {
+            Point center(faces[i].x + faces[i].width / 2, faces[i].y + faces[i].height / 2);
+            rectangle(frame, Rect(center.x - (faces[i].width / 2), center.y - (faces[i].height / 2), faces[i].width, faces[i].height), Scalar(0, 0, 255), 4, 8, 0);
+        }
+
+        fend = omp_get_wtime();
+        fprocTime = fend - fstart;
+        fps = 1 / fprocTime;
+        putText(frame, "fps: " + to_string(fps), Point(50, 50), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(0, 0, 255), 3);
+        imshow(windowName, frame);
+        waitKey(10);
+    }
 }

@@ -7,7 +7,11 @@ class video
 {
 public:
 	void MultipleVideoProcessingTest();
+	void FaceDetectTest();
+
 private:
 	int DisplayVideo(string str, string windowName);
+	void FaceDetect(string str, string windowName);
+	void BodyDetect(string str, string windowName);
 };
 

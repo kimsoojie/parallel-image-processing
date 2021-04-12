@@ -20,6 +20,7 @@ using namespace std;
 
 int main(int ac, char** av) {
     video v;
-    v.MultipleVideoProcessingTest();
+    v.FaceDetectTest();
+    //v.MultipleVideoProcessingTest();
     return 0;
 }
