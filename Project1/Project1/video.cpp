@@ -80,6 +80,14 @@ void video::FaceDetectTest()
     //FaceDetect("people.mp4", "original");
     //BodyDetect("people.mp4", "original");
 
+#pragma omp parallel sections
+    {
+#pragma omp section
+        FaceDetect("people.mp4", "original");
+#pragma omp section
+        BodyDetect("people.mp4", "original");
+
+    }
 }
 
 void video::FaceDetect(string strVideo, string windowName)
@@ -94,7 +102,6 @@ void video::FaceDetect(string strVideo, string windowName)
 
     CascadeClassifier face_cascade;
     string cascadepath_face = "D:\\program\\opencv\\opencv\\sources\\data\\haarcascades\\haarcascade_frontalface_default.xml";
-    string cascadepath_body = "D:\\program\\opencv\\opencv\\sources\\data\\haarcascades\\haarcascade_fullbody.xml";
 
     if (!face_cascade.load(cascadepath_face))
     {
