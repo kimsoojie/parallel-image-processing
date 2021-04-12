@@ -93,26 +93,56 @@ void video::Detection(string strVideo)
         frames.push_back(frame);
     }
 
-#pragma omp parallel for
-    for (int i = 0; i < frames.size(); i++)
+#pragma omp parallel sections
     {
-        Mat frame = frames[i];
-
-        if (frame.empty()) break;
-        
-        if (i % 3 == 0)
+#pragma omp section
         {
-            Display_Original(frame, "0");
+            for (int i = 0; i < frames.size(); i++)
+            {
+                Mat frame = frames[i];
+                if (frame.empty()) break;
+                if (i % 3 == 0) Display_Original(frame, "0");
+            }
         }
-        if (i % 3 == 1)
+#pragma omp section
         {
-            Display_Face(frame, "1");
+            for (int i = 0; i < frames.size(); i++)
+            {
+                Mat frame = frames[i];
+                if (frame.empty()) break;
+                if (i % 3 == 1) Display_Face(frame, "1");
+            }
         }
-        if (i % 3 == 2)
+#pragma omp section
         {
-            Display_Eye(frame, "2");
+            for (int i = 0; i < frames.size(); i++)
+            {
+                Mat frame = frames[i];
+                if (frame.empty()) break;
+                if (i % 3 == 2) Display_Eye(frame, "2");
+            }
         }
     }
+
+    //for (int i = 0; i < frames.size(); i++)
+    //{
+    //    Mat frame = frames[i];
+    //
+    //    if (frame.empty()) break;
+    //    
+    //    if (i % 3 == 0)
+    //    {
+    //        Display_Original(frame, "0");
+    //    }
+    //    if (i % 3 == 1)
+    //    {
+    //        Display_Face(frame, "1");
+    //    }
+    //    if (i % 3 == 2)
+    //    {
+    //        Display_Eye(frame, "2");
+    //    }
+    //}
 
 }
 
