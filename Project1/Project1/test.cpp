@@ -20,7 +20,8 @@ using namespace std;
 
 int main(int ac, char** av) {
     video v;
-    v.Detection("person.mp4");
+    //v.MultipleVideoProcessingTest();
+    v.Detection("people.mp4");
 
     //v.MultipleVideoProcessingTest();
     return 0;

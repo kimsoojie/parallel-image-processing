@@ -18,17 +18,18 @@ using namespace std;
 class video
 {
 public:
-	void MultipleVideoProcessingTest(); //test
+	void MultipleVideoProcessingTest(); //practice
 	void Detection(string str);
 
 private:
-	int DisplayVideo(string str, string windowName); //test
+	int DisplayVideo(string str, string windowName); //practice
 	
+	bool Grab(string video, vector<Mat>& cap_frames);
 	void Display_Original(Mat cap_frame, string windowName);
 	void Display_Face(Mat cap_frame, string windowName);
-	void Display_Eye(Mat cap_frame, string windowName);
+	void Display_Body(Mat cap_frame, string windowName);
 	void FaceDetect(Mat cap_frame);
-	void EyeDetect(Mat cap_frame);
+	void BodyDetect(Mat cap_frame);
 
 };
 

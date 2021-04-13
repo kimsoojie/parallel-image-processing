@@ -77,79 +77,54 @@ int video::DisplayVideo(string strVideo, string windowName)
 
 void video::Detection(string strVideo)
 {
-    VideoCapture cap(strVideo);
-    if (!cap.isOpened()) return;
-  
-    double fstart, fend, fprocTime;
-    double fps;
-  
     vector<Mat> frames;
+    Grab(strVideo, frames);
+
+#pragma omp parallel sections
+    {
+#pragma omp section
+        {
+            for (int i = 0; i < frames.size(); i += 3)
+            {
+                Mat frame = frames[i];
+                if (frame.empty()) break;
+                Display_Original(frame, "Original");
+            }
+        }
+#pragma omp section
+        {
+            for (int i = 1; i < frames.size(); i += 3)
+            {
+                Mat frame = frames[i];
+                if (frame.empty()) break;
+                Display_Face(frame, "Face");
+            }
+        }
+#pragma omp section
+        {
+            for (int i = 2; i < frames.size(); i += 3)
+            {
+                Mat frame = frames[i];
+                if (frame.empty()) break;
+                Display_Body(frame, "Body");
+            }
+        }
+    }
+}
+
+bool video::Grab(string video, vector<Mat>& cap_frames)
+{
+    VideoCapture cap(video);
+    if (!cap.isOpened()) return false;
 
     for (;;)
     {
         Mat frame;
         cap >> frame;
         if (frame.empty()) break;
-        frames.push_back(frame);
+        cap_frames.push_back(frame);
     }
-
-#pragma omp parallel sections
-    {
-#pragma omp section
-        {
-//#pragma omp parallel for
-            for (int i = 0; i < frames.size(); i++)
-            {
-                Mat frame = frames[i];
-                if (frame.empty()) break;
-                if (i % 3 == 0) 
-                    Display_Original(frame, "0");
-            }
-        }
-#pragma omp section
-        {
-//#pragma omp parallel for
-            for (int i = 0; i < frames.size(); i++)
-            {
-                Mat frame = frames[i];
-                if (frame.empty()) break;
-                if (i % 3 == 1) 
-                    Display_Face(frame, "1");
-            }
-        }
-#pragma omp section
-        {
-//#pragma omp parallel for
-            for (int i = 0; i < frames.size(); i++)
-            {
-                Mat frame = frames[i];
-                if (frame.empty()) break;
-                if (i % 3 == 2) 
-                    Display_Eye(frame, "2");
-            }
-        }
-    }
-
-    //for (int i = 0; i < frames.size(); i++)
-    //{
-    //    Mat frame = frames[i];
-    //
-    //    if (frame.empty()) break;
-    //    
-    //    if (i % 3 == 0)
-    //    {
-    //        Display_Original(frame, "0");
-    //    }
-    //    if (i % 3 == 1)
-    //    {
-    //        Display_Face(frame, "1");
-    //    }
-    //    if (i % 3 == 2)
-    //    {
-    //        Display_Eye(frame, "2");
-    //    }
-    //}
-
+    return true;
 }
 
 
@@ -160,37 +135,66 @@ void video::Display_Original(Mat cap_frame, string windowName)
     double fstart, fend, fprocTime;
     double fps;
     fstart = omp_get_wtime();
+
+    waitKey(100);
+
     fend = omp_get_wtime();
     fprocTime = fend - fstart;
     fps = 1 / fprocTime;
+
     putText(cap_frame, "fps: " + to_string(fps), Point(50, 50), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(0, 255, 0), 3);
+
     imshow(windowName, cap_frame);
-    waitKey(20);
 }
 
 void video::Display_Face(Mat cap_frame, string windowName)
 {
     namedWindow(windowName, 1);
 
+    double fstart, fend, fprocTime;
+    double fps;
+    fstart = omp_get_wtime();
+
     FaceDetect(cap_frame);
+   
+    waitKey(100);
+
+    fend = omp_get_wtime();
+    fprocTime = fend - fstart;
+    fps = 1 / fprocTime;
+
+    putText(cap_frame, "fps: " + to_string(fps), Point(50, 50), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(0, 255, 0), 3);
     imshow(windowName, cap_frame);
-    waitKey(20);   
+   
+      
 }
 
-void video::Display_Eye(Mat cap_frame, string windowName)
+void video::Display_Body(Mat cap_frame, string windowName)
 {
     namedWindow(windowName, 1);
 
-    EyeDetect(cap_frame);
+    double fstart, fend, fprocTime;
+    double fps;
+    fstart = omp_get_wtime();
+
+    BodyDetect(cap_frame);
+    
+    waitKey(100);
+
+    fend = omp_get_wtime();
+    fprocTime = fend - fstart;
+    fps = 1 / fprocTime;
+
+    putText(cap_frame, "fps: " + to_string(fps), Point(50, 50), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(0, 255, 0), 3);
     imshow(windowName, cap_frame);
-    waitKey(20);
+    
    
 }
 
 void video::FaceDetect(Mat cap_frame)
 {
     CascadeClassifier face_cascade;
-    string cascadepath_face = "D:\\soojie\\program\\opencv\\sources\\data\\haarcascades\\haarcascade_frontalface_default.xml";
+    string cascadepath_face = "D:\\program\\opencv\\opencv\\sources\\data\\haarcascades\\haarcascade_frontalface_default.xml";
 
     if (!face_cascade.load(cascadepath_face))
     {
@@ -198,57 +202,35 @@ void video::FaceDetect(Mat cap_frame)
         return;
     }
 
-    double fstart, fend, fprocTime;
-    double fps;
-
-    fstart = omp_get_wtime();
-
     vector<Rect> faces;
     
-    face_cascade.detectMultiScale(cap_frame, faces, 1.1, 2, 0 | CASCADE_SCALE_IMAGE, Size(30, 30));
+    face_cascade.detectMultiScale(cap_frame, faces, 1.1, 2, 0 | CASCADE_SCALE_IMAGE, Size(20, 20));
     
     for (size_t i = 0; i < faces.size(); i++)
     {
         Point center(faces[i].x + faces[i].width / 2, faces[i].y + faces[i].height / 2);
         rectangle(cap_frame, Rect(center.x - (faces[i].width / 2), center.y - (faces[i].height / 2), faces[i].width, faces[i].height), Scalar(0, 0, 255), 3, 8, 0);
     }
-
-    fend = omp_get_wtime();
-    fprocTime = fend - fstart;
-    fps = 1 / fprocTime;
-    putText(cap_frame, "fps: " + to_string(fps), Point(50, 50), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(0, 255, 0), 3);
-
 }
 
-void video::EyeDetect(Mat cap_frame)
+void video::BodyDetect(Mat cap_frame)
 {
-    CascadeClassifier eye_cascade;
-    string cascadepath_eye = "D:\\soojie\\program\\opencv\\sources\\data\\haarcascades\\haarcascade_righteye_2splits.xml";
+    CascadeClassifier body_cascade;
+    string cascadepath_body = "D:\\program\\opencv\\opencv\\sources\\data\\haarcascades\\haarcascade_fullbody.xml";
 
-    if (!eye_cascade.load(cascadepath_eye))
+    if (!body_cascade.load(cascadepath_body))
     {
         cout << "cascade load error\n";
         return;
     }
 
-    double fstart, fend, fprocTime;
-    double fps;
+    vector<Rect> body;
 
-    fstart = omp_get_wtime();
+    body_cascade.detectMultiScale(cap_frame, body, 1.1, 2, 0 | CASCADE_SCALE_IMAGE, Size(30, 30));
 
-    vector<Rect> eyes;
-
-    eye_cascade.detectMultiScale(cap_frame, eyes, 1.1, 2, 0 | CASCADE_SCALE_IMAGE, Size(10, 10));
-
-    for (size_t i = 0; i < eyes.size(); i++)
+    for (size_t i = 0; i < body.size(); i++)
     {
-        Point center(eyes[i].x + eyes[i].width / 2, eyes[i].y + eyes[i].height / 2);
-        rectangle(cap_frame, Rect(center.x - (eyes[i].width / 2), center.y - (eyes[i].height / 2), eyes[i].width, eyes[i].height), Scalar(255, 0, 0), 3, 8, 0);
+        Point center(body[i].x + body[i].width / 2, body[i].y + body[i].height / 2);
+        rectangle(cap_frame, Rect(center.x - (body[i].width / 2), center.y - (body[i].height / 2), body[i].width, body[i].height), Scalar(255, 0, 0), 3, 8, 0);
     }
-
-    fend = omp_get_wtime();
-    fprocTime = fend - fstart;
-    fps = 1 / fprocTime;
-    putText(cap_frame, "fps: " + to_string(fps), Point(50, 50), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(0, 255, 0), 3);
-
 }
