@@ -80,6 +80,10 @@ void video::Detection(string strVideo)
     vector<Mat> frames;
     Grab(strVideo, frames);
 
+    VideoWriter out_original = VideoWriter("out_original.mp4", cv::CAP_PROP_FOURCC, 5, frames[0].size());
+    VideoWriter out_face = VideoWriter("out_face.mp4", cv::CAP_PROP_FOURCC, 5, frames[0].size());
+    VideoWriter out_body = VideoWriter("out_body.mp4", cv::CAP_PROP_FOURCC, 5, frames[0].size());
+
 #pragma omp parallel sections
     {
 #pragma omp section
@@ -89,6 +93,7 @@ void video::Detection(string strVideo)
                 Mat frame = frames[i];
                 if (frame.empty()) break;
                 Display_Original(frame, "Original");
+                out_original.write(frame);
             }
         }
 #pragma omp section
@@ -98,6 +103,7 @@ void video::Detection(string strVideo)
                 Mat frame = frames[i];
                 if (frame.empty()) break;
                 Display_Face(frame, "Face");
+                out_face.write(frame);
             }
         }
 #pragma omp section
@@ -107,6 +113,7 @@ void video::Detection(string strVideo)
                 Mat frame = frames[i];
                 if (frame.empty()) break;
                 Display_Body(frame, "Body");
+                out_body.write(frame);
             }
         }
     }
