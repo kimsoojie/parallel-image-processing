@@ -194,7 +194,8 @@ void video::Display_Body(Mat cap_frame, string windowName)
 void video::FaceDetect(Mat cap_frame)
 {
     CascadeClassifier face_cascade;
-    string cascadepath_face = "D:\\program\\opencv\\opencv\\sources\\data\\haarcascades\\haarcascade_frontalface_default.xml";
+    //string cascadepath_face = "D:\\program\\opencv\\opencv\\sources\\data\\haarcascades\\haarcascade_frontalface_default.xml";
+    string cascadepath_face = "D:\\soojie\\program\\opencv\\sources\\data\\haarcascades\\haarcascade_frontalface_default.xml";
 
     if (!face_cascade.load(cascadepath_face))
     {
@@ -216,7 +217,8 @@ void video::FaceDetect(Mat cap_frame)
 void video::BodyDetect(Mat cap_frame)
 {
     CascadeClassifier body_cascade;
-    string cascadepath_body = "D:\\program\\opencv\\opencv\\sources\\data\\haarcascades\\haarcascade_fullbody.xml";
+    //string cascadepath_body = "D:\\program\\opencv\\opencv\\sources\\data\\haarcascades\\haarcascade_fullbody.xml";
+    string cascadepath_body = "D:\\soojie\\program\\opencv\\sources\\data\\haarcascades\\haarcascade_fullbody.xml";
 
     if (!body_cascade.load(cascadepath_body))
     {
