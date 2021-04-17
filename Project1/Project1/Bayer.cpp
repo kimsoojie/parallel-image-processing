@@ -16,8 +16,7 @@
 #define IMG_WIDTH 3264
 #define IMG_HEIGHT 2448
 
-#define BYTE unsigned char
-
+using namespace std;
 
 void Bayer::Interpolation()
 {
@@ -48,23 +47,19 @@ void Bayer::Interpolation()
     // 8bit data to 10 bit data( raw -> data)
     seq_data_copy(raw, data, lSize);
 
-    int s_data = _msize(data) / sizeof(unsigned short);
-    int s_raw = _msize(raw) / sizeof(unsigned char);
-    cout << "raw: " << s_raw << endl;
-    cout << "data: " << s_data << endl;
-    cout << s_raw / 5 << endl;
-    cout << s_data / 4 << endl;
-
-    //interpolation 
+    // make mask
     char pattern[MASK_HEIGHT * MASK_WIDTH] = {'r','g','r','g',
                                               'g','b','g','b'};
     char* mask = (char*)malloc(sizeof(char*) * IMG_HEIGHT * IMG_WIDTH);
     create_mask(IMG_WIDTH, IMG_HEIGHT, MASK_WIDTH, MASK_HEIGHT, mask, pattern);
     
+    // interpolation
     interpolation_serial(data, RGB, IMG_WIDTH, IMG_HEIGHT, mask);
     
+    // save raw file (10 bit)
     save_raw_file_10bit("test_raw.raw",RGB,IMG_HEIGHT,IMG_WIDTH*3);
     
+    // save bmp file (10 bit)
     save_bmp("result.bmp", RGB, IMG_WIDTH, IMG_HEIGHT);
 
     fclose(pFile);
