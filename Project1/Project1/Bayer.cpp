@@ -60,16 +60,12 @@ void Bayer::Interpolation()
                                               'g','b','g','b'};
     char* mask = (char*)malloc(sizeof(char*) * IMG_HEIGHT * IMG_WIDTH);
     create_mask(IMG_WIDTH, IMG_HEIGHT, MASK_WIDTH, MASK_HEIGHT, mask, pattern);
-
+    
     interpolation_serial(data, RGB, IMG_WIDTH, IMG_HEIGHT, mask);
     
     save_raw_file_10bit("test_raw.raw",RGB,IMG_HEIGHT,IMG_WIDTH*3);
-
+    
     save_bmp("result.bmp", RGB, IMG_WIDTH, IMG_HEIGHT);
-
-   
-
-
 
     fclose(pFile);
     free(raw);
@@ -100,7 +96,7 @@ unsigned short Bayer::averaging(unsigned short* data, char* mask, char rgb, int 
 {
     if (mask[row * img_width + col] == rgb)
         return data[row * img_width + col];
-
+    
     int count = 0;
     unsigned short sum = 0;
 
@@ -185,9 +181,9 @@ void Bayer::save_bmp(const char* filename, unsigned short* rgb_data, int img_wid
             int idx_g = i * img_width + j + start_g;
             int idx_b = i * img_width + j + start_b;
     
-            float r = (float)rgb_data[idx_r] / 255.0f;
-            float g = (float)rgb_data[idx_g] / 255.0f;
-            float b = (float)rgb_data[idx_b] / 255.0f;
+            float r = (float)rgb_data[idx_r] / 1023.0f;
+            float g = (float)rgb_data[idx_g] / 1023.0f;
+            float b = (float)rgb_data[idx_b] / 1023.0f;
            
             image.SetColor(Color(r, g, b), j, i);
         }
