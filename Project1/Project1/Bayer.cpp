@@ -17,6 +17,7 @@
 #define IMG_HEIGHT 2448
 
 using namespace std;
+using namespace cv;
 
 void Bayer::Interpolation()
 {
@@ -24,7 +25,8 @@ void Bayer::Interpolation()
     FILE* pFile; 
     long lSize;
     unsigned char* raw;
-    unsigned short* RGB;
+    unsigned short* RGB_serial;
+    unsigned short* RGB_parallel;
     size_t result;
     fopen_s(&pFile, "raw.raw", "rb");
     if (pFile == NULL) { fputs("File error", stderr); exit(1); }
@@ -42,7 +44,8 @@ void Bayer::Interpolation()
     result = fread(raw, 1, lSize, pFile);
     if (result != lSize) { fputs("Reading error", stderr); exit(3); }
     unsigned short* data = (unsigned short*)malloc(sizeof(unsigned short) * IMG_HEIGHT * IMG_WIDTH);
-    RGB = (unsigned short*)malloc(sizeof(unsigned short) * IMG_HEIGHT * IMG_WIDTH * 3);
+    RGB_serial = (unsigned short*)malloc(sizeof(unsigned short) * IMG_HEIGHT * IMG_WIDTH * 3);
+    RGB_parallel = (unsigned short*)malloc(sizeof(unsigned short) * IMG_HEIGHT * IMG_WIDTH * 3);
 
     // 8bit data to 10 bit data( raw -> data)
     seq_data_copy(raw, data, lSize);
@@ -53,14 +56,27 @@ void Bayer::Interpolation()
     char* mask = (char*)malloc(sizeof(char*) * IMG_HEIGHT * IMG_WIDTH);
     create_mask(IMG_WIDTH, IMG_HEIGHT, MASK_WIDTH, MASK_HEIGHT, mask, pattern);
     
-    // interpolation
-    interpolation_serial(data, RGB, IMG_WIDTH, IMG_HEIGHT, mask);
+    // interpolation (Serial)
+    TickMeter tm;
+    tm.start();
+    interpolation_serial(data, RGB_serial, IMG_WIDTH, IMG_HEIGHT, mask);
+    tm.stop();
+    cout << "serial process time : " << tm.getTimeMilli() << endl;
+
+    // interpolation (Parallel)
+    tm.reset();
+    tm.start();
+    interpolation_parallel(data, RGB_parallel, IMG_WIDTH, IMG_HEIGHT, mask);
+    tm.stop();
+    cout << "parallel process time : " << tm.getTimeMilli() << endl;
     
     // save raw file (10 bit)
-    save_raw_file_10bit("test_raw.raw",RGB,IMG_HEIGHT,IMG_WIDTH*3);
+    save_raw_file_10bit("10bit_raw_serial.raw", RGB_serial,IMG_HEIGHT,IMG_WIDTH*3);
+    save_raw_file_10bit("10bit_raw_parallel.raw", RGB_parallel,IMG_HEIGHT,IMG_WIDTH*3);
     
     // save bmp file (10 bit)
-    save_bmp("result.bmp", RGB, IMG_WIDTH, IMG_HEIGHT);
+    save_bmp("result_serial.bmp", RGB_serial, IMG_WIDTH, IMG_HEIGHT);
+    save_bmp("result_parallel.bmp", RGB_parallel, IMG_WIDTH, IMG_HEIGHT);
 
     fclose(pFile);
     free(raw);
@@ -73,6 +89,27 @@ void Bayer::interpolation_serial(unsigned short* data, unsigned short* rgb, int 
     int start_g = width * height * 1;
     int start_b = width * height * 2;
 
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            int idx_r = i * width + j + start_r;
+            int idx_g = i * width + j + start_g;
+            int idx_b = i * width + j + start_b;
+            rgb[idx_r] = averaging(data, mask_arr, 'r', width, height, i, j);
+            rgb[idx_g] = averaging(data, mask_arr, 'g', width, height, i, j);
+            rgb[idx_b] = averaging(data, mask_arr, 'b', width, height, i, j);
+        }
+    }
+}
+
+void Bayer::interpolation_parallel(unsigned short* data, unsigned short* rgb, int width, int height, char* mask_arr)
+{
+    int start_r = width * height * 0;
+    int start_g = width * height * 1;
+    int start_b = width * height * 2;
+
+#pragma omp parallel for
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
@@ -183,6 +220,6 @@ void Bayer::save_bmp(const char* filename, unsigned short* rgb_data, int img_wid
             image.SetColor(Color(r, g, b), j, i);
         }
     }
-    image.Export("result.bmp");
+    image.Export(filename);
 
 }
