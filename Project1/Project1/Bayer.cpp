@@ -10,7 +10,7 @@
 #include <iostream>
 #include <stdio.h>
 
-#define MASK_WIDTH 4
+#define MASK_WIDTH 2
 #define MASK_HEIGHT 2
 
 #define IMG_WIDTH 3264
@@ -51,8 +51,7 @@ void Bayer::Interpolation()
     seq_data_copy(raw, data, lSize);
 
     // make mask
-    char pattern[MASK_HEIGHT * MASK_WIDTH] = {'r','g','r','g',
-                                              'g','b','g','b'};
+    char pattern[MASK_HEIGHT * MASK_WIDTH] = {'r','g','g','b'};
     char* mask = (char*)malloc(sizeof(char*) * IMG_HEIGHT * IMG_WIDTH);
     create_mask(IMG_WIDTH, IMG_HEIGHT, MASK_WIDTH, MASK_HEIGHT, mask, pattern);
     
