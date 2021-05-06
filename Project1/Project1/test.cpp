@@ -9,6 +9,7 @@
 #include "opencv2/opencv.hpp"
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/imgproc.hpp"
+#include "InstructionSet.h"
 
 #include <omp.h>
 #include<ipp.h>
@@ -16,12 +17,22 @@
 #include <stdio.h>
 #include <bitset>
 
+#include <vector>   
+#include <array>  
+#include <string>  
+#include <intrin.h>  
+
 using namespace cv;
 using namespace std;
 
+
+
 int main(int ac, char** av) {
-    Bayer bayer;
-    bayer.Interpolation();
+    //Bayer bayer;
+    //bayer.Interpolation();
+
+    InstructionSet SSE_CHECK;
+    SSE_CHECK.check();
 
     return 0;
 
