@@ -10,6 +10,7 @@
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/imgproc.hpp"
 #include "InstructionSet.h"
+#include "SSE.h"
 
 #include <omp.h>
 #include<ipp.h>
@@ -33,6 +34,12 @@ int main(int ac, char** av) {
 
     InstructionSet SSE_CHECK;
     SSE_CHECK.check();
+
+    SSE sse;
+    sse.ArraySum();
+    sse.CalcSumSSE();
+    sse.CalcSumAVX();
+    sse.CalcSqrt();
 
     return 0;
 
