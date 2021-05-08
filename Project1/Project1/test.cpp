@@ -40,7 +40,7 @@ int main(int ac, char** av) {
     sse.CalcSumSSE();
     sse.CalcSumAVX();
     sse.CalcSqrt();
-
+    sse.MeanFilter();
     return 0;
 
 }
