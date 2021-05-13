@@ -32,15 +32,17 @@ int main(int ac, char** av) {
     //Bayer bayer;
     //bayer.Interpolation();
 
-    InstructionSet SSE_CHECK;
-    SSE_CHECK.check();
+    //InstructionSet SSE_CHECK;
+    //SSE_CHECK.check();
 
     SSE sse;
-    sse.ArraySum();
-    sse.CalcSumSSE();
-    sse.CalcSumAVX();
-    sse.CalcSqrt();
-    sse.MeanFilter();
+    //sse.ArraySum();
+    //sse.CalcSumSSE();
+    //sse.CalcSumAVX();
+    //sse.CalcSqrt();
+    //sse.MeanFilter();
+    sse.Practice();
+
     return 0;
 
 }

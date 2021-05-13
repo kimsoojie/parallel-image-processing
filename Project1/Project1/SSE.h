@@ -12,6 +12,8 @@
 using namespace cv;
 using namespace std;
 
+
+
 class SSE
 {
 public:
@@ -20,11 +22,15 @@ public:
 	void CalcSumSSE();
 	void CalcSumAVX();
 	void CalcSqrt();
+	int Practice();
+
 
 	// hw5
 	void MeanFilter();
 	void Filter2DCV(Mat src, int w, int h, Mat dst, Mat element, int we, int he);
 	void Filter2DMP(Mat src, int w, int h, Mat dst, Mat element, int we, int he);
 	void Filter2DSSE(Mat src, int w, int h, Mat dst, Mat element, int we, int he);
+
+
 };
 
