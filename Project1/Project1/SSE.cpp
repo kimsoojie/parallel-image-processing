@@ -157,12 +157,13 @@ int SSE::Practice()
 
 	dst1 = _mm_unpacklo_epi16(source, source);
 	dst2 = _mm_unpackhi_epi16(source, source);
-	dst1 = _mm_srai_epi32(dst1, 16);
-	dst2 = _mm_srai_epi32(dst2, 16);
+	//dst1 = _mm_srai_epi32(dst1, 16);
+	//dst2 = _mm_srai_epi32(dst2, 16);
 
 	for (int i = 0; i < 4; i++)
 	{
-		cout << dst1.m128i_i32[i] << ", ";
+		//cout << dst1.m128i_i32[i] << ", ";
+		cout << dst1.m128i_i16[i] << ", ";
 	}
 
 	for (int i = 0; i < 4; i++)
