@@ -9,6 +9,10 @@
 #include <iostream>
 #include <stdio.h>
 
+#include <emmintrin.h>
+#include <immintrin.h>
+#include <zmmintrin.h>
+
 using namespace cv;
 using namespace std;
 
@@ -31,6 +35,9 @@ public:
 	void Filter2DMP(Mat src, int w, int h, Mat dst, Mat element, int we, int he);
 	void Filter2DSSE(Mat src, int w, int h, Mat dst, Mat element, int we, int he);
 
+	//hw6
 
+	void SSEmean_16bit(Mat src, int w, int h, Mat dst, Mat element, int we, int he);
+	void SSEmean_8bit(Mat src, int w, int h, Mat dst, Mat element, int we, int he);
 };
 

@@ -42,7 +42,7 @@ int main(int ac, char** av) {
     //sse.CalcSqrt();
     //sse.MeanFilter();
     sse.Practice();
-
+    sse.MeanFilter();
     return 0;
 
 }
