@@ -17,7 +17,6 @@ using namespace cv;
 using namespace std;
 
 
-
 class SSE
 {
 public:
@@ -28,16 +27,13 @@ public:
 	void CalcSqrt();
 	int Practice();
 
-
 	// hw5
 	void MeanFilter();
 	void Filter2DCV(Mat src, int w, int h, Mat dst, Mat element, int we, int he);
 	void Filter2DMP(Mat src, int w, int h, Mat dst, Mat element, int we, int he);
 	void Filter2DSSE(Mat src, int w, int h, Mat dst, Mat element, int we, int he);
 
-	//hw6
-
-	void SSEmean_16bit(Mat src, int w, int h, Mat dst, Mat element, int we, int he);
+	// hw6
 	void SSEmean_8bit(Mat src, int w, int h, Mat dst, Mat element, int we, int he);
 };
 

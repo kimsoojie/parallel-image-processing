@@ -454,13 +454,13 @@ void SSE::MeanFilter()
 	cout << "\nProcessTime-OpenCV : ";
 	cout << tm.getTimeMilli();
 	
-	//tm.reset();
-	//tm.start();
-	////OpenMP
-	//Filter2DMP(src, width, height, dstMP, element, eWidht, eHeight);
-	//tm.stop();
-	//cout << "\nProcessTime-OpenMP : ";
-	//cout << tm.getTimeMilli();
+	tm.reset();
+	tm.start();
+	//OpenMP
+	Filter2DMP(src, width, height, dstMP, element, eWidht, eHeight);
+	tm.stop();
+	cout << "\nProcessTime-OpenMP : ";
+	cout << tm.getTimeMilli();
 	
 	//tm.reset();
 	//tm.start();
@@ -526,7 +526,7 @@ void SSE::Filter2DMP(Mat src, int w, int h, Mat dst, Mat element, int we, int he
 		}
 	}
 
-	imshow("dst_openmp", dst);
+	//imshow("dst_openmp", dst);
 }
 
 void SSE::Filter2DSSE(Mat src, int w, int h, Mat dst, Mat element, int we, int he)
@@ -572,120 +572,6 @@ void SSE::Filter2DSSE(Mat src, int w, int h, Mat dst, Mat element, int we, int h
 	}
 
 	//imshow("dst_sse", dst);
-}
-
-
-void SSE::SSEmean_16bit(Mat src, int w, int h, Mat dst, Mat element, int we, int he)
-{
-	uchar* data = src.data;
-	//uchar data[18] = { 2,4,6,8,10,12,14,16,
-	//				  18,20,22,24,26,28,30,32,34,36 };
-	uchar* pData = data;
-
-	__m128i row;
-	__m128i row_0[3];
-	__m128i row_1[3];
-	__m128i row_2[3];
-
-	int sum_0[16] = { 0 };
-	int sum_1[16] = { 0 };
-	int sum_2[16] = { 0 };
-	int sum[16] = { 0 };
-
-	__m128i xmmResult;
-
-	__m128i div = _mm_set_epi32(9, 9, 9, 9);
-	__m128i tmp1;
-	__m128i tmp2;
-	__m128i tmp3;
-
-	__m128i dst_16bit_0;
-	__m128i dst_16bit_1;
-
-	__m128i dst_32bit_0;
-	__m128i dst_32bit_1;
-	__m128i dst_32bit_2;
-	__m128i dst_32bit_3;
-	
-	for (int i = 0; i < h - 2; i++)
-	{
-		for (int j = 0; j < w ; j += 16)
-		{
-			row_0[0] = _mm_loadu_epi8((__m128i*)(pData + ((i + 0) * w + j)));
-			row_0[1] = _mm_loadu_epi8((__m128i*)(pData + ((i + 0) * w + j + 1)));
-			row_0[2] = _mm_loadu_epi8((__m128i*)(pData + ((i + 0) * w + j + 2)));
-
-			row_1[0] = _mm_loadu_epi8((__m128i*)(pData + ((i + 1) * w + j)));
-			row_1[1] = _mm_loadu_epi8((__m128i*)(pData + ((i + 1) * w + j + 1)));
-			row_1[2] = _mm_loadu_epi8((__m128i*)(pData + ((i + 1) * w + j + 2)));
-
-			row_2[0] = _mm_loadu_epi8((__m128i*)(pData + ((i + 2) * w + j)));
-			row_2[1] = _mm_loadu_epi8((__m128i*)(pData + ((i + 2) * w + j + 1)));
-			row_2[2] = _mm_loadu_epi8((__m128i*)(pData + ((i + 2) * w + j + 2)));
-
-			for (int k = 0; k < 16; k++)
-			{
-				sum_0[k] = (int)row_0[0].m128i_u8[k] + (int)row_0[1].m128i_u8[k] + (int)row_0[2].m128i_u8[k];
-				sum_1[k] = (int)row_1[0].m128i_u8[k] + (int)row_1[1].m128i_u8[k] + (int)row_1[2].m128i_u8[k];
-				sum_2[k] = (int)row_2[0].m128i_u8[k] + (int)row_2[1].m128i_u8[k] + (int)row_2[2].m128i_u8[k];
-				sum[k] = sum_0[k] + sum_1[k] + sum_2[k];
-			}
-
-			dst_16bit_0 = _mm_set_epi16((short)sum[7], (short)sum[6], (short)sum[5], (short)sum[4],
-				(short)sum[3], (short)sum[2], (short)sum[1], (short)sum[0]);
-
-			dst_16bit_1 = _mm_set_epi16((short)sum[15], (short)sum[14], (short)sum[13], (short)sum[12],
-				(short)sum[11], (short)sum[10], (short)sum[9], (short)sum[8]);
-
-			tmp1 = _mm_unpacklo_epi16(dst_16bit_0, dst_16bit_0); // 2 2 4 4 6 6 8 8
-			tmp2 = _mm_unpackhi_epi16(dst_16bit_0, dst_16bit_0); //10 10 12 12 14 14 16 16
-
-			dst_32bit_0 = _mm_srai_epi32(tmp1, 16); // 2 4 6 8
-			dst_32bit_1 = _mm_srai_epi32(tmp2, 16); // 10 12 14 16
-
-			tmp1 = _mm_unpacklo_epi16(dst_16bit_1, dst_16bit_1); //18 18 20 20 22 22 24 24
-			tmp2 = _mm_unpackhi_epi16(dst_16bit_1, dst_16bit_1); //26 26 28 28 30 30 32 32
-
-			dst_32bit_2 = _mm_srai_epi32(tmp1, 16); // 18 20 22 24
-			dst_32bit_3 = _mm_srai_epi32(tmp2, 16); // 26 28 30 32 
-
-			dst_32bit_0 = _mm_div_epi32(dst_32bit_0, div); // 1 2 3 4
-			dst_32bit_1 = _mm_div_epi32(dst_32bit_1, div); // 5 6 7 8
-			dst_32bit_2 = _mm_div_epi32(dst_32bit_2, div); // 9 10 11 12
-			dst_32bit_3 = _mm_div_epi32(dst_32bit_3, div); // 13 14 15 16
-
-			tmp1 = _mm_packs_epi32(dst_32bit_0, dst_32bit_0); // 1 2 3 4 1 2 3 4
-			tmp2 = _mm_packs_epi32(dst_32bit_1, dst_32bit_1); // 5 6 7 8 5 6 7 8
-			tmp3 = _mm_unpacklo_epi16(tmp1, tmp2); // 1 5 2 6 3 7 4 8
-
-			tmp3 = _mm_shufflehi_epi16(tmp3, _MM_SHUFFLE(3, 1, 2, 0)); // 1 2 5 6 3 7 4 8
-			tmp3 = _mm_shufflelo_epi16(tmp3, _MM_SHUFFLE(3, 1, 2, 0)); // 1 2 5 6 3 4 7 8
-			dst_16bit_0 = _mm_shuffle_epi32(tmp3, _MM_SHUFFLE(3, 1, 2, 0)); // 1 2 3 4 5 6 7 8
-
-			tmp1 = _mm_packs_epi32(dst_32bit_2, dst_32bit_2); // 9 10 11 12 9 10 11 12
-			tmp2 = _mm_packs_epi32(dst_32bit_3, dst_32bit_3); // 13 14 15 16 13 14 15 16
-			tmp3 = _mm_unpacklo_epi16(tmp1, tmp2); // 9 13 10 14 11 15 12 16
-
-			tmp3 = _mm_shufflehi_epi16(tmp3, _MM_SHUFFLE(3, 1, 2, 0)); // 9 10 13 14 11 15 12 16
-			tmp3 = _mm_shufflelo_epi16(tmp3, _MM_SHUFFLE(3, 1, 2, 0)); // 9 10 13 14 11 12 15 16
-			dst_16bit_1 = _mm_shuffle_epi32(tmp3, _MM_SHUFFLE(3, 1, 2, 0)); // 9 10 11 12 13 14 15 16 
-
-			tmp1 = _mm_packus_epi16(dst_16bit_0, dst_16bit_0); // 1 2 3 4 5 6 7 8 1 2 3 4 5 6 7 8
-			tmp2 = _mm_packus_epi16(dst_16bit_1, dst_16bit_1); // 9 10 11 12 13 14 15 16 9 10 11 12 13 14 15 16
-			tmp3 = _mm_unpacklo_epi8(tmp1, tmp2); // 1 9 2 10 3 11 4 12 5 13 6 14 8 16
-
-			__m128i cof = _mm_setr_epi8(0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15);
-			xmmResult = _mm_shuffle_epi8(tmp3, cof);
-
-			for (int k = 0; k < 16; k++)
-			{
-				dst.at<uchar>(i + 1, j + k) = *((uchar*)(&xmmResult) + (k));
-			}
-		}
-	}
-
-	imshow("dst_sse(16bit)", dst);
-
 }
 
 void SSE::SSEmean_8bit(Mat src, int w, int h, Mat dst, Mat element, int we, int he)
@@ -804,6 +690,6 @@ void SSE::SSEmean_8bit(Mat src, int w, int h, Mat dst, Mat element, int we, int 
 		}
 	}
 
-	//imshow("dst_sse(8bit)", dst);
+	imshow("dst_sse(8bit)", dst);
 	//imwrite("./result/dst_sse(8bit).jpg", dst);
 }
