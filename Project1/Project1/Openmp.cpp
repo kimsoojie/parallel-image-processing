@@ -137,46 +137,44 @@ void Openmp::fnc()
 
 void Openmp::Filter2DCV(Mat src, int w, int h, Mat dst, Mat element, int we, int he)
 {
-	for (int i = 0; i < w - we; i++)
+	for (int i = he/2; i < h - he/2; i++)
 	{
-		for (int j = 0; j < h - he; j++)
+		for (int j = we/2; j < w - we/2; j++)
 		{
 			float val = 0;
-			for (int fw = 0; fw < we; fw++)
+			for (int fh = 0; fh < he; fh++)
 			{
-				for (int fh = 0; fh < he; fh++)
+				for (int fw = 0; fw < we; fw++)
 				{
-					val += src.at<char>(i, j) * element.at<float>(fw, fh);
+					val += (src.at<uchar>( i + fh - he / 2, j + fw - we / 2) * element.at<float>(fh, fw));
 				}
 			}
 			dst.at<char>(i, j) = val;
 		}
 	}
-
+	imwrite("serial.bmp", dst);
 	imshow("dst_cv", dst);
 }
 
 void Openmp::Filter2DMP(Mat src, int w, int h, Mat dst, Mat element, int we, int he)
 {
-	float val = 0;
-
-#pragma omp parallel for private(val)
-	for (int i = 0; i < w - we; i++)
+#pragma omp parallel for
+	for (int i = he / 2; i < h - he / 2; i++)
 	{
-		for (int j = 0; j < h - he; j++)
+		for (int j = we / 2; j < w - we / 2; j++)
 		{
-			val = 0;
-			for (int fw = 0; fw < we; fw++)
+			float val = 0;
+			for (int fh = 0; fh < he; fh++)
 			{
-				for (int fh = 0; fh < he; fh++)
+				for (int fw = 0; fw < we; fw++)
 				{
-					val += src.at<char>(i, j) * element.at<float>(fw, fh);
+					val += (src.at<uchar>(i + fh - he / 2, j + fw - we / 2) * element.at<float>(fh, fw));
 				}
 			}
 			dst.at<char>(i, j) = val;
 		}
 	}
-
+	imwrite("openmp.bmp", dst);
 	imshow("dst_openmp", dst);
 }
 
@@ -185,11 +183,16 @@ void Openmp::CompareFilter2DCV_2DMP()
 	TickMeter tm;
 
 	// kernel
-	Mat element(3, 3, CV_32F);
-	float FilterElm = (float)1 / (element.rows * element.cols);
-	element.at<float>(0, 0) = FilterElm;	element.at<float>(0, 1) = FilterElm;	element.at<float>(0, 2) = FilterElm;
-	element.at<float>(1, 0) = FilterElm;	element.at<float>(1, 1) = FilterElm;	element.at<float>(1, 2) = FilterElm;
-	element.at<float>(2, 0) = FilterElm;	element.at<float>(2, 1) = FilterElm;	element.at<float>(2, 2) = FilterElm;
+	
+	Mat element = getGaussianKernel(5, 1);
+	element = element * element.t();
+	element.convertTo(element, CV_32F);
+	
+	//Mat element(3, 3, CV_32F);
+	//float FilterElm = (float)1 / (element.rows * element.cols);
+	//element.at<float>(0, 0) = FilterElm;	element.at<float>(0, 1) = FilterElm;	element.at<float>(0, 2) = FilterElm;
+	//element.at<float>(1, 0) = FilterElm;	element.at<float>(1, 1) = FilterElm;	element.at<float>(1, 2) = FilterElm;
+	//element.at<float>(2, 0) = FilterElm;	element.at<float>(2, 1) = FilterElm;	element.at<float>(2, 2) = FilterElm;
 
 	//Mat element(5, 5, CV_32F);
 	//float FilterElm = (float)1 / (element.rows * element.cols);
@@ -198,6 +201,7 @@ void Openmp::CompareFilter2DCV_2DMP()
 	//element.at<float>(2, 0) = FilterElm;	element.at<float>(2, 1) = FilterElm;	element.at<float>(2, 2) = FilterElm; element.at<float>(2, 3) = FilterElm;	element.at<float>(2, 4) = FilterElm;
 	//element.at<float>(3, 0) = FilterElm;	element.at<float>(3, 1) = FilterElm;	element.at<float>(3, 2) = FilterElm; element.at<float>(3, 3) = FilterElm;	element.at<float>(3, 4) = FilterElm;
 	//element.at<float>(4, 0) = FilterElm;	element.at<float>(4, 1) = FilterElm;	element.at<float>(4, 2) = FilterElm; element.at<float>(4, 3) = FilterElm;	element.at<float>(4, 4) = FilterElm;
+	
 
 	cout << "<filter>" << endl;
 	for (int i = 0; i < element.rows; i++) {
@@ -209,12 +213,15 @@ void Openmp::CompareFilter2DCV_2DMP()
 	cout << endl;
 
 	// load src image
-	Mat src = imread("hw1_2.jpg", 0);
-	Mat dstCV(src.size().width, src.size().height, CV_8UC1);
-	Mat dstMP(src.size().width, src.size().height, CV_8UC1);
+	Mat src = imread("Grab_Image.bmp",0);
+
+
+	Mat dstCV(src.size().height, src.size().width, CV_8UC1);
+	Mat dstMP(src.size().height, src.size().width, CV_8UC1);
 
 	// src , kernel size
-	int width = src.size().width;		int height = src.size().height;
+	int width = src.size().width;
+	int height = src.size().height;
 	int eWidht = element.cols;	int eHeight = element.rows;
 	cout << "<image size>" << endl;
 	cout << "width : " << width << "   height : " << height << endl;
@@ -233,7 +240,7 @@ void Openmp::CompareFilter2DCV_2DMP()
 	tm.reset();
 	tm.start();
 	//OpenMP
-	Filter2DMP(src, width, height, dstMP, element, eWidht, eHeight);
+	Filter2DMP(src, width,height, dstMP, element, eWidht, eHeight);
 	tm.stop();
 	cout << "\nProcessTime-OpenMP : ";
 	cout << tm.getTimeMilli();

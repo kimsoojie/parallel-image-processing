@@ -13,9 +13,9 @@ using namespace std;
 
 void Ipp::GaussianFilter()
 {
-    Mat image = imread("hw1_2.jpg", 0);
-    int imsize = 2048;
-    resize(image, image, Size(imsize, imsize));
+    Mat image = imread("Grab_Image.bmp",0);
+    //int imsize = 2048;
+    //resize(image, image, Size(imsize, imsize));
     
     TickMeter tm;
     tm.start();
@@ -61,7 +61,7 @@ void Ipp::GaussianFilter()
     cout << "Ipp : ";
     cout << tm.getTimeMilli();
     
-    
+    imwrite("ipp.bmp", dst);
     imshow("image", image);
     imshow("gaussian", dst);
     waitKey(0);

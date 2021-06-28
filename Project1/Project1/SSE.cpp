@@ -181,6 +181,12 @@ int SSE::Practice()
 	__m128i source_0 = _mm_loadu_epi8((__m128i*)pData);
 	__m128i source_1 = _mm_loadu_epi8((__m128i*)(pData + 1));
 	__m128i source_2 = _mm_loadu_epi8((__m128i*)(pData + 2));
+
+	cout << endl;
+	for (int i = 0; i < 16; i++)
+	{
+		cout << (int)source_0.m128i_u8[i] << " ";
+	}
 	
 	tmp1 = _mm_unpacklo_epi8(source_0, source_0); // 2 2 4 4 6 6 8 8 10 10 12 12 14 14 16 16
 	tmp2 = _mm_unpackhi_epi8(source_0, source_0); // 18 18 20 20 22 22 24 24 26 26 28 28 30 30 32 32
@@ -194,6 +200,12 @@ int SSE::Practice()
 	dst_16bit[1] = _mm_set_epi16(tmp2.m128i_u8[14], tmp2.m128i_u8[12], tmp2.m128i_u8[10], tmp2.m128i_u8[8],
 		tmp2.m128i_u8[6], tmp2.m128i_u8[4], tmp2.m128i_u8[2], tmp2.m128i_u8[0]);
 
+	cout << endl;
+	for (int i = 0; i < 8; i++)
+	{
+		cout << (int)dst_16bit[0].m128i_u16[i] << " ";
+	}
+
 	tmp1 = _mm_unpacklo_epi16(dst_16bit[0], dst_16bit[0]); // 2 2 4 4 6 6 8 8
 	tmp2 = _mm_unpackhi_epi16(dst_16bit[0], dst_16bit[0]); //10 10 12 12 14 14 16 16
 
@@ -206,6 +218,12 @@ int SSE::Practice()
 	
 	dst_32bit[2] = _mm_srai_epi32(tmp1, 16); // 18 20 22 24
 	dst_32bit[3] = _mm_srai_epi32(tmp2, 16); // 26 28 30 32 
+
+	cout << endl;
+	for (int i = 0; i < 4; i++)
+	{
+		cout << (int)dst_32bit[0].m128i_u32[i] << " ";
+	}
 
 	dst_32bit[0] = _mm_div_epi32(dst_32bit[0], div); // 1 2 3 4
 	dst_32bit[1] = _mm_div_epi32(dst_32bit[1], div); // 5 6 7 8
@@ -439,13 +457,14 @@ void SSE::MeanFilter()
 	cout << "eWidht : " << eWidht << "   eHeight : " << eHeight << endl;
 	cout << endl;
 
-	//tm.start();
-	////Serial 
-	//Filter2DCV(src, width, height, dstCV, element, eWidht, eHeight);
-	//tm.stop();
-	//cout << "\nProcessTime-Serial : ";
-	//cout << tm.getTimeMilli();
-	//
+	tm.start();
+	//Serial 
+	Filter2DCV(src, width, height, dstCV, element, eWidht, eHeight);
+	tm.stop();
+	cout << "\nProcessTime-Serial : ";
+	cout << tm.getTimeMilli();
+	
+	
 	//opencv
 	tm.reset();
 	tm.start();
@@ -476,10 +495,11 @@ void SSE::MeanFilter()
 	SSEmean_8bit(src, width, height, dstSSE, element, eWidht, eHeight);
 	tm.stop();
 	cout << "\nProcessTime-SSE(8bit) : ";
-	cout << tm.getTimeMilli();
+	cout << tm.getTimeMilli() << endl;
 
 	//imshow("src", src);
-	imshow("dst_opencv", dstOpencv);
+	//imshow("dst_opencv", dstOpencv);
+	//imwrite("./result/src.jpg", src);
 	waitKey(0);
 }
 
@@ -584,10 +604,10 @@ void SSE::SSEmean_8bit(Mat src, int w, int h, Mat dst, Mat element, int we, int 
 	__m128i row_1[3];
 	__m128i row_2[3];
 
-	int sum_0[16] = { 0 };
-	int sum_1[16] = { 0 };
-	int sum_2[16] = { 0 };
-	int sum[16] = { 0 };
+	short sum_0[16] = { 0 };
+	short sum_1[16] = { 0 };
+	short sum_2[16] = { 0 };
+	short sum[16] = { 0 };
 
 	__m128i xmmResult;
 
@@ -624,9 +644,9 @@ void SSE::SSEmean_8bit(Mat src, int w, int h, Mat dst, Mat element, int we, int 
 			// calculate sum
 			for (int k = 0; k < 16; k++)
 			{
-				sum_0[k] = (int)row_0[0].m128i_u8[k] + (int)row_0[1].m128i_u8[k] + (int)row_0[2].m128i_u8[k];
-				sum_1[k] = (int)row_1[0].m128i_u8[k] + (int)row_1[1].m128i_u8[k] + (int)row_1[2].m128i_u8[k];
-				sum_2[k] = (int)row_2[0].m128i_u8[k] + (int)row_2[1].m128i_u8[k] + (int)row_2[2].m128i_u8[k];
+				sum_0[k] = (short)row_0[0].m128i_u8[k] + (short)row_0[1].m128i_u8[k] + (short)row_0[2].m128i_u8[k];
+				sum_1[k] = (short)row_1[0].m128i_u8[k] + (short)row_1[1].m128i_u8[k] + (short)row_1[2].m128i_u8[k];
+				sum_2[k] = (short)row_2[0].m128i_u8[k] + (short)row_2[1].m128i_u8[k] + (short)row_2[2].m128i_u8[k];
 				sum[k] = sum_0[k] + sum_1[k] + sum_2[k];
 			}
 
@@ -690,6 +710,6 @@ void SSE::SSEmean_8bit(Mat src, int w, int h, Mat dst, Mat element, int we, int 
 		}
 	}
 
-	imshow("dst_sse(8bit)", dst);
+	//imshow("dst_sse(8bit)", dst);
 	//imwrite("./result/dst_sse(8bit).jpg", dst);
 }
